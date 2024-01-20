@@ -64,16 +64,16 @@ defmodule Server do
   end
 
   defp check_command(["ping" | _]) do
-    {:ok, "+PONG\r\n"}
+    {:ok, Builder.build_simple_string("PONG")}
   end
 
   defp check_command(["echo" | [message]]) do
-    {:ok, "$#{byte_size(message)}\r\n#{message}\r\n"}
+    {:ok, Builder.build_bulk_string(message)}
   end
 
   defp check_command(["set", key, value]) do
     Storage.set(key, value)
-    {:ok, "+OK\r\n"}
+    {:ok, Builder.build_simple_string("OK")}
   end
 
   defp check_command(["set", key, value, "px", px]) do
@@ -81,16 +81,16 @@ defmodule Server do
 
     Storage.set(key, value, ttl: px)
 
-    {:ok, "+OK\r\n"}
+    {:ok, Builder.build_simple_string("OK")}
   end
 
   defp check_command(["get", key]) do
     case Storage.get(key) do
       nil ->
-        {:ok, "$-1\r\n"}
+        {:ok, Builder.build_null_bulk_string()}
 
       value ->
-        {:ok, "$#{byte_size(value)}\r\n#{value}\r\n"}
+        {:ok, Builder.build_bulk_string(value)}
     end
   end
 
@@ -99,11 +99,10 @@ defmodule Server do
 
     case Map.get(config, key) do
       nil ->
-        {:ok, "*0\r\n"}
+        {:ok, Builder.build_list([])}
 
       value ->
-        {:ok,
-         "*2\r\n" <> Builder.build_bulk_string(key) <> Builder.build_bulk_string(value) <> "\r\n"}
+        {:ok, Builder.build_list([key, value])}
     end
   end
 end
