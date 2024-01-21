@@ -46,21 +46,9 @@ defmodule Commands do
   end
 
   def exec(["keys", "*"]) do
-    config = Storage.get(:config)
-
-    dir = config["dir"]
-    dbfilename = config["dbfilename"]
-
-    {:ok, data} = RDB.parse_dbfile(Path.join([dir, dbfilename]))
-
-    key =
-      data
-      |> Map.keys()
-      |> Enum.at(0)
-
-    case key do
-      nil -> {:ok, Builder.build_list([])}
-      _ -> {:ok, Builder.build_list([key])}
+    case Storage.get_keys() do
+      [] -> {:ok, Builder.build_list([])}
+      keys -> {:ok, Builder.build_list(keys)}
     end
   end
 

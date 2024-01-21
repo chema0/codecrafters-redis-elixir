@@ -11,7 +11,6 @@ defmodule Storage do
           %{}
           |> Map.merge(%{config: config})
           |> Map.merge(data)
-          |> IO.inspect()
         end,
         name: __MODULE__
       )
@@ -22,6 +21,14 @@ defmodule Storage do
 
   def get(key) do
     Agent.get(__MODULE__, &Map.get(&1, key))
+  end
+
+  def get_keys() do
+    Agent.get(__MODULE__, fn data ->
+      data
+      |> Map.drop([:config])
+      |> Map.keys()
+    end)
   end
 
   def set(key, value, opts \\ []) do
