@@ -1,4 +1,11 @@
 defmodule RDB do
+  @moduledoc """
+  This module implements tools to work with RDB (Redis Database) persistence. Partial support
+  of the RDB file format.
+
+  https://rdb.fnordig.de/file_format.html
+  """
+
   require Logger
 
   @spec parse_dbfile(binary()) :: {:ok, map()} | {:error, binary()}

@@ -12,7 +12,8 @@ defmodule Server do
       [
         {Task.Supervisor, name: __MODULE__.TaskSupervisor},
         {Task, fn -> Server.listen() end},
-        {Storage, %{config: Enum.into(args, %{}, fn {k, v} -> {to_string(k), v} end)}}
+        # {Storage, %{config: Enum.into(args, %{}, fn {k, v} -> {to_string(k), v} end)}}
+        {Storage, Enum.into(args, %{}, fn {k, v} -> {to_string(k), v} end)}
       ],
       strategy: :one_for_one
     )
