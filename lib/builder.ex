@@ -31,4 +31,7 @@ defmodule Builder do
 
     "*#{length(values)}" <> @crlf <> list <> @crlf
   end
+
+  @spec build_error(binary()) :: binary()
+  def build_error(message), do: "-ERR " <> message <> @crlf
 end
