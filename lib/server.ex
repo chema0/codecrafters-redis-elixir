@@ -6,7 +6,7 @@ defmodule Server do
   use Application
 
   def start(_type, _args) do
-    args = Utils.parse_args!()
+    args = Utils.parse_args()
 
     Supervisor.start_link(
       [
