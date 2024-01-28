@@ -8,7 +8,7 @@ defmodule RDB do
 
   require Logger
 
-  @spec parse_dbfile(binary()) :: {:ok, list()} | {:error, binary()}
+  @spec parse_dbfile(binary()) :: {:ok, [{binary(), any(), number() | nil}]} | {:error, binary()}
   def parse_dbfile(filename) do
     case read_file(filename) do
       <<>> ->
@@ -20,7 +20,6 @@ defmodule RDB do
   end
 
   defp parse(<<0xFE, 0x00, 0xFB, _hash_table_size, _hash_table_expire_size, rest::binary>>) do
-    IO.puts("# Key-Value pair starts")
     parse_pairs(rest)
   end
 
@@ -36,7 +35,6 @@ defmodule RDB do
     {:ok, acc}
   end
 
-  # TODO: refactor to avoid duplicated pattern matching when handling expires
   defp parse_pairs(
          <<0xFD, ttl_seconds::32-little, _type, key_size, key::binary-size(key_size), value_size,
            value::binary-size(value_size), rest::binary>>,
@@ -46,7 +44,6 @@ defmodule RDB do
     parse_pairs(rest, acc)
   end
 
-  # TODO: refactor to avoid duplicated pattern matching when handling expires
   defp parse_pairs(
          <<0xFC, ttl_ms::64-little, _type, key_size, key::binary-size(key_size), value_size,
            value::binary-size(value_size), rest::binary>>,
@@ -56,7 +53,6 @@ defmodule RDB do
     parse_pairs(rest, acc)
   end
 
-  # defp parse_pairs(<<_type, n, rest::binary>>, acc) do
   defp parse_pairs(
          <<_type, key_size, key::binary-size(key_size), value_size,
            value::binary-size(value_size), rest::binary>>,

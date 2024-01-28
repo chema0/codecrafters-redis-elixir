@@ -8,20 +8,19 @@ defmodule Storage do
          {:ok, data} <- RDB.parse_dbfile(path) do
       Agent.start_link(
         fn ->
-          IO.inspect(data)
+          data
+          |> Enum.reduce(%{config: config}, fn {key, value, timestamp}, acc ->
+            cond do
+              is_nil(timestamp) ->
+                Map.put(acc, key, value)
 
-          Enum.into(data, %{config: config}, fn {key, value, timestamp} ->
-            case timestamp do
-              nil ->
-                {key, value}
-
-              timestamp ->
+              timestamp - :os.system_time(:millisecond) > 0 ->
                 ttl = timestamp - :os.system_time(:millisecond)
-
-                ttl = if ttl > 0, do: ttl, else: 0
-
                 :timer.apply_after(ttl, __MODULE__, :delete, [key])
-                {key, value}
+                Map.put(acc, key, value)
+
+              true ->
+                acc
             end
           end)
         end,
