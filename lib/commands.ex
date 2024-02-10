@@ -52,5 +52,13 @@ defmodule Commands do
     end
   end
 
+  def exec(["info"]) do
+    {:ok, Builder.build_bulk_string("# Replication\nrole:master")}
+  end
+
+  def exec(["info", "replication"]) do
+    {:ok, Builder.build_bulk_string("# Replication\nrole:master")}
+  end
+
   def exec([cmd | _]), do: {:ok, Builder.build_error("unkown command '#{cmd}'")}
 end
