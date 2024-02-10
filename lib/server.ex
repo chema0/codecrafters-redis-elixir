@@ -5,13 +5,15 @@ defmodule Server do
 
   use Application
 
+  @default_port 6379
+
   def start(_type, _args) do
     args = Utils.parse_args()
 
     Supervisor.start_link(
       [
         {Task.Supervisor, name: __MODULE__.TaskSupervisor},
-        {Task, fn -> Server.listen() end},
+        {Task, fn -> Server.listen(Keyword.get(args, :port, @default_port)) end},
         {Storage, Enum.into(args, %{}, fn {k, v} -> {to_string(k), v} end)}
       ],
       strategy: :one_for_one
@@ -21,16 +23,17 @@ defmodule Server do
   @doc """
   Listen for incoming connections
   """
-  def listen() do
+  @spec listen(pos_integer()) :: no_return()
+  def listen(port) do
     # You can use print statements as follows for debugging, they'll be visible when running tests.
     IO.puts("Logs from your program will appear here!")
 
-    {:ok, socket} = :gen_tcp.listen(6379, [:binary, active: false, reuseaddr: true])
+    {:ok, socket} = :gen_tcp.listen(port, [:binary, active: false, reuseaddr: true])
 
     loop_acceptor(socket)
   end
 
-  @spec serve(:gen_tcp.socket()) :: any
+  @spec loop_acceptor(:gen_tcp.socket()) :: no_return()
   defp loop_acceptor(socket) do
     {:ok, client} = :gen_tcp.accept(socket)
 
