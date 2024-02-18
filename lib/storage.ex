@@ -1,6 +1,7 @@
 defmodule Storage do
   use Agent
 
+  # TODO: refactor for better CLI support
   def start_link(config \\ %{}) do
     with dir when not is_nil(dir) <- Map.get(config, "dir"),
          dbfilename when not is_nil(dbfilename) <- Map.get(config, "dbfilename"),
@@ -27,7 +28,16 @@ defmodule Storage do
         name: __MODULE__
       )
     else
-      _ -> Agent.start_link(fn -> %{} end, name: __MODULE__)
+      _ ->
+        case config do
+          %{"replica_of" => replica_of} ->
+            Agent.start_link(fn -> %{config: %{replica_of: replica_of}} end,
+              name: __MODULE__
+            )
+
+          _ ->
+            Agent.start_link(fn -> %{} end, name: __MODULE__)
+        end
     end
   end
 
