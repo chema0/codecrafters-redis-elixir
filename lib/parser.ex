@@ -8,7 +8,7 @@ defmodule Parser do
     defexception [:message]
   end
 
-  @type redis_value :: binary | integer | nil | Redix.Error.t() | [redis_value]
+  @type redis_value :: binary | integer | nil | no_return | [redis_value]
   @type on_parse(value) :: {:ok, value, binary} | {:continuation, (binary -> on_parse(value))}
 
   @crlf "\r\n"

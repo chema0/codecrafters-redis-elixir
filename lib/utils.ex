@@ -1,5 +1,6 @@
 defmodule Utils do
-  @type config :: [] | [{:dir, binary()}, {:dbfilename, binary()}]
+  @type replica_of :: {master_host :: binary(), port: non_neg_integer()}
+  @type config :: [] | [dir: binary(), dbfilename: binary(), replica_of: replica_of()]
 
   @spec parse_args() :: config()
   def parse_args() do
